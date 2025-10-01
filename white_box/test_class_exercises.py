@@ -6,7 +6,10 @@ White-box unit testing examples.
 import unittest
 
 from white_box.class_exercises import (
+    TrafficLight,
     VendingMachine,
+    celsius_to_fahrenheit,
+    check_number_status,
     divide,
     get_grade,
     is_even,
@@ -131,3 +134,74 @@ class TestWhiteBoxVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.state, "Dispensing")
         self.assertEqual(output, "Coin Inserted. Select your drink.")
+
+
+class TestWhiteBoxCheckNumberStatus(unittest.TestCase):
+    """Unit tests for 1: check_number_status"""
+
+    def test_positive_number(self):
+        """Return Positive when number > 0"""
+        self.assertEqual(check_number_status(5), "Positive")
+
+    def test_negative_number(self):
+        """Return Negative when number < 0"""
+        self.assertEqual(check_number_status(-3), "Negative")
+
+    def test_zero(self):
+        """Return Zero when number == 0"""
+        self.assertEqual(check_number_status(0), "Zero")
+
+
+class TestWhiteBoxCelsiusToFahrenheit(unittest.TestCase):
+    """Unit tests for 10: celsius_to_fahrenheit"""
+
+    def test_valid_temperatures(self):
+        """Valid range: should convert Celsius to Fahrenheit"""
+        self.assertEqual(celsius_to_fahrenheit(0), 32)
+        self.assertEqual(celsius_to_fahrenheit(100), 212)
+        self.assertEqual(celsius_to_fahrenheit(-40), -40)
+
+    def test_invalid_low_temperature(self):
+        """Invalid: below -100"""
+        self.assertEqual(celsius_to_fahrenheit(-150), "Invalid Temperature")
+
+    def test_invalid_high_temperature(self):
+        """Invalid: above 100"""
+        self.assertEqual(celsius_to_fahrenheit(150), "Invalid Temperature")
+
+
+class TestWhiteBoxTrafficLight(unittest.TestCase):
+    """Unit tests for 23: TrafficLight"""
+
+    def test_initial_state(self):
+        """Initial state should be Red"""
+        tl = TrafficLight()
+        self.assertEqual(tl.get_current_state(), "Red")
+
+    def test_cycle_once(self):
+        """Red = Green"""
+        tl = TrafficLight()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Green")
+
+    def test_cycle_twice(self):
+        """Red = Green = Yellow"""
+        tl = TrafficLight()
+        tl.change_state()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Yellow")
+
+    def test_cycle_three_times(self):
+        """Red = Green = Yellow = Red"""
+        tl = TrafficLight()
+        tl.change_state()
+        tl.change_state()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Red")
+
+    def test_multiple_full_cycles(self):
+        """Two full cycles should return to Red"""
+        tl = TrafficLight()
+        for _ in range(6):
+            tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Red")

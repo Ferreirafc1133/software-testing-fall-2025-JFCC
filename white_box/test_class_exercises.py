@@ -156,7 +156,7 @@ class TestWhiteBoxCelsiusToFahrenheit(unittest.TestCase):
     """Unit tests for 10: celsius_to_fahrenheit"""
 
     def test_valid_temperatures(self):
-        """Valid range: should convert Celsius to Fahrenheit"""
+        """Valid range: should convert Celsius to Fahrenheit."""
         self.assertEqual(celsius_to_fahrenheit(0), 32)
         self.assertEqual(celsius_to_fahrenheit(100), 212)
         self.assertEqual(celsius_to_fahrenheit(-40), -40)

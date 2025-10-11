@@ -6,8 +6,12 @@ White-box unit testing examples.
 import unittest
 
 from white_box.class_exercises import (
+    TrafficLight,
     VendingMachine,
     calculate_total_discount,
+
+    celsius_to_fahrenheit,
+    White-box-tests
     check_number_status,
     divide,
     get_grade,
@@ -28,6 +32,14 @@ from white_box.class_exercises import (
     UserAuthentication,
     DocumentEditingSystem,
     ElevatorSystem,
+    calculate_total_discount,
+    calculate_order_total,
+    calculate_items_shipping_cost,
+    validate_login,
+    verify_age,
+    categorize_product,
+    validate_email,
+    White-box-tests
 )
 
 
@@ -391,3 +403,227 @@ class TestGetWeatherAdvisory(unittest.TestCase):
         )
 
 
+
+class TestWhiteBoxCheckNumberStatus(unittest.TestCase):
+    """Unit tests for 1: check_number_status"""
+
+    def test_positive_number(self):
+        """Return Positive when number > 0"""
+        self.assertEqual(check_number_status(5), "Positive")
+
+    def test_negative_number(self):
+        """Return Negative when number < 0"""
+        self.assertEqual(check_number_status(-3), "Negative")
+
+    def test_zero(self):
+        """Return Zero when number == 0"""
+        self.assertEqual(check_number_status(0), "Zero")
+
+
+class TestWhiteBoxCelsiusToFahrenheit(unittest.TestCase):
+    """Unit tests for 10: celsius_to_fahrenheit"""
+
+    def test_valid_temperatures(self):
+        """Valid range: should convert Celsius to Fahrenheit."""
+        self.assertEqual(celsius_to_fahrenheit(0), 32)
+        self.assertEqual(celsius_to_fahrenheit(100), 212)
+        self.assertEqual(celsius_to_fahrenheit(-40), -40)
+
+    def test_invalid_low_temperature(self):
+        """Invalid: below -100"""
+        self.assertEqual(celsius_to_fahrenheit(-150), "Invalid Temperature")
+
+    def test_invalid_high_temperature(self):
+        """Invalid: above 100"""
+        self.assertEqual(celsius_to_fahrenheit(150), "Invalid Temperature")
+
+
+class TestWhiteBoxTrafficLight(unittest.TestCase):
+    """Unit tests for 23: TrafficLight"""
+
+    def test_initial_state(self):
+        """Initial state should be Red"""
+        tl = TrafficLight()
+        self.assertEqual(tl.get_current_state(), "Red")
+
+    def test_cycle_once(self):
+        """Red = Green"""
+        tl = TrafficLight()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Green")
+
+    def test_cycle_twice(self):
+        """Red = Green = Yellow"""
+        tl = TrafficLight()
+        tl.change_state()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Yellow")
+
+    def test_cycle_three_times(self):
+        """Red = Green = Yellow = Red"""
+        tl = TrafficLight()
+        tl.change_state()
+        tl.change_state()
+        tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Red")
+
+    def test_multiple_full_cycles(self):
+        """Two full cycles should return to Red"""
+        tl = TrafficLight()
+        for _ in range(6):
+            tl.change_state()
+        self.assertEqual(tl.get_current_state(), "Red")
+
+
+class TestWhiteBoxValidatePassword(unittest.TestCase):
+    """Unit tests for 2: validate_password"""
+
+    def test_valid_password(self):
+        self.assertTrue(validate_password("Ab1!bcde"))
+
+    def test_too_short(self):
+        self.assertFalse(validate_password("Aa1!a"))
+
+    def test_missing_uppercase(self):
+        self.assertFalse(validate_password("aa1!aaaa"))
+
+    def test_missing_lowercase(self):
+        self.assertFalse(validate_password("AA1!AAAA"))
+
+    def test_missing_digit(self):
+        self.assertFalse(validate_password("Aa!aaaaa"))
+
+    def test_missing_special(self):
+        self.assertFalse(validate_password("Aa1aaaaa"))
+
+
+class TestWhiteBoxCalculateTotalDiscount(unittest.TestCase):
+    """Unit tests for 3: calculate_total_discount"""
+
+    def test_no_discount_below_100(self):
+        self.assertEqual(calculate_total_discount(99), 0)
+
+    def test_10_percent_at_100(self):
+        self.assertEqual(calculate_total_discount(100), 10)
+
+    def test_10_percent_at_500(self):
+        self.assertEqual(calculate_total_discount(500), 50)
+
+    def test_20_percent_above_500(self):
+        self.assertEqual(calculate_total_discount(750), 150)
+
+
+class TestWhiteBoxCalculateOrderTotal(unittest.TestCase):
+    """Unit tests for 4: calculate_order_total"""
+
+    def test_no_discount_qty_1_5(self):
+        items = [{"quantity": 3, "price": 10}]
+        self.assertEqual(calculate_order_total(items), 30)
+
+    def test_5_percent_qty_6_10(self):
+        items = [{"quantity": 6, "price": 10}]
+        self.assertEqual(calculate_order_total(items), 6 * 10 * 0.95)
+
+    def test_10_percent_qty_over_10(self):
+        items = [{"quantity": 11, "price": 10}]
+        self.assertEqual(calculate_order_total(items), 11 * 10 * 0.9)
+
+    def test_mixed_items(self):
+        items = [
+            {"quantity": 2, "price": 50},   
+            {"quantity": 7, "price": 20},   
+            {"quantity": 12, "price": 5},  
+        ]
+        expected = (2 * 50) + (0.95 * 7 * 20) + (0.9 * 12 * 5)
+        self.assertAlmostEqual(calculate_order_total(items), expected, places=2)
+
+
+class TestWhiteBoxShippingCost(unittest.TestCase):
+    """Unit tests for 5: calculate_items_shipping_cost"""
+
+    def test_standard_tiers(self):
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 5}], "standard"), 10)
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 9}], "standard"), 15)
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 11}], "standard"), 20)
+
+    def test_express_tiers(self):
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 5}], "express"), 20)
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 9}], "express"), 30)
+        self.assertEqual(calculate_items_shipping_cost([{"weight": 11}], "express"), 40)
+
+    def test_invalid_method(self):
+        with self.assertRaises(ValueError):
+            calculate_items_shipping_cost([{"weight": 2}], "fast")
+
+
+class TestWhiteBoxValidateLogin(unittest.TestCase):
+    """Unit tests for 6: validate_login"""
+
+    def test_successful_login(self):
+        self.assertEqual(validate_login("user123", "Password1!"), "Login Successful")
+
+    def test_username_too_short(self):
+        self.assertEqual(validate_login("usr", "Password1!"), "Login Failed")
+
+    def test_username_too_long(self):
+        self.assertEqual(validate_login("u" * 21, "Password1!"), "Login Failed")
+
+    def test_password_too_short(self):
+        self.assertEqual(validate_login("username", "P1short"), "Login Failed")
+
+    def test_password_too_long(self):
+        self.assertEqual(validate_login("username", "X" * 16), "Login Failed")
+
+
+class TestWhiteBoxVerifyAge(unittest.TestCase):
+    """Unit tests for 7: verify_age"""
+
+    def test_bounds_eligible(self):
+        self.assertEqual(verify_age(18), "Eligible")
+        self.assertEqual(verify_age(65), "Eligible")
+
+    def test_underage(self):
+        self.assertEqual(verify_age(17), "Not Eligible")
+
+    def test_overage(self):
+        self.assertEqual(verify_age(66), "Not Eligible")
+
+
+class TestWhiteBoxCategorizeProduct(unittest.TestCase):
+    """Unit tests for 8: categorize_product"""
+
+    def test_category_a(self):
+        self.assertEqual(categorize_product(10), "Category A")
+        self.assertEqual(categorize_product(50), "Category A")
+
+    def test_category_b(self):
+        self.assertEqual(categorize_product(51), "Category B")
+        self.assertEqual(categorize_product(100), "Category B")
+
+    def test_category_c(self):
+        self.assertEqual(categorize_product(101), "Category C")
+        self.assertEqual(categorize_product(200), "Category C")
+
+    def test_category_d(self):
+        self.assertEqual(categorize_product(9), "Category D")
+        self.assertEqual(categorize_product(201), "Category D")
+
+
+class TestWhiteBoxValidateEmail(unittest.TestCase):
+    """Unit tests for 9: validate_email"""
+
+    def test_valid_email(self):
+        self.assertEqual(validate_email("user@example.com"), "Valid Email")
+
+    def test_too_short(self):
+        self.assertEqual(validate_email("a@b"), "Invalid Email")
+
+    def test_too_long(self):
+        long_email = ("u" * 49) + "@a.co"
+        self.assertEqual(validate_email(long_email), "Invalid Email")
+
+    def test_missing_at(self):
+        self.assertEqual(validate_email("userexample.com"), "Invalid Email")
+
+    def test_missing_dot(self):
+        self.assertEqual(validate_email("user@examplecom"), "Invalid Email")

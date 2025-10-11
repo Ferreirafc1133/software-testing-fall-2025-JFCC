@@ -14,6 +14,20 @@ from white_box.class_exercises import (
     is_even,
     is_triangle,
     validate_password,
+    validate_credit_card,
+    validate_date,
+    check_flight_eligibility,
+    validate_url,
+    calculate_quantity_discount,
+    check_file_size,
+    check_loan_eligibility,
+    calculate_shipping_cost,
+    grade_quiz,
+    authenticate_user,
+    get_weather_advisory,
+    UserAuthentication,
+    DocumentEditingSystem,
+    ElevatorSystem,
 )
 
 
@@ -230,3 +244,150 @@ class TestWhiteBoxVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.state, "Dispensing")
         self.assertEqual(output, "Coin Inserted. Select your drink.")
+
+# 11 a 21 
+
+class TestValidateCreditCard(unittest.TestCase):
+    def test_valid_lengths_and_digits(self):
+        self.assertEqual(validate_credit_card("0" * 13), "Valid Card")
+        self.assertEqual(validate_credit_card("1" * 16), "Valid Card")
+
+    def test_invalid_by_length_or_chars(self):
+        self.assertEqual(validate_credit_card("123456789012"), "Invalid Card")
+        self.assertEqual(validate_credit_card("1234abcd5678"), "Invalid Card")
+
+
+class TestValidateDate(unittest.TestCase):
+    def test_valid_bounds(self):
+        self.assertEqual(validate_date(1900, 1, 1), "Valid Date")
+        self.assertEqual(validate_date(2100, 12, 31), "Valid Date")
+
+    def test_invalid_bounds(self):
+        self.assertEqual(validate_date(1899, 12, 31), "Invalid Date")
+        self.assertEqual(validate_date(2101, 1, 1), "Invalid Date")
+        self.assertEqual(validate_date(2000, 0, 10), "Invalid Date")
+        self.assertEqual(validate_date(2000, 13, 10), "Invalid Date")
+        self.assertEqual(validate_date(2000, 5, 0), "Invalid Date")
+        self.assertEqual(validate_date(2000, 5, 32), "Invalid Date")
+
+
+class TestCheckFlightEligibility(unittest.TestCase):
+    def test_age_in_range(self):
+        self.assertEqual(check_flight_eligibility(18, False), "Eligible to Book")
+        self.assertEqual(check_flight_eligibility(65, False), "Eligible to Book")
+
+    def test_out_of_range_without_ff(self):
+        self.assertEqual(check_flight_eligibility(17, False), "Not Eligible to Book")
+        self.assertEqual(check_flight_eligibility(70, False), "Not Eligible to Book")
+
+    def test_frequent_flyer_overrides_age(self):
+        self.assertEqual(check_flight_eligibility(17, True), "Eligible to Book")
+        self.assertEqual(check_flight_eligibility(70, True), "Eligible to Book")
+
+
+class TestValidateUrl(unittest.TestCase):
+    def test_valid_http_https(self):
+        self.assertEqual(validate_url("http://example.com"), "Valid URL")
+        self.assertEqual(validate_url("https://example.com"), "Valid URL")
+
+    def test_invalid_scheme(self):
+        self.assertEqual(validate_url("ftp://example.com"), "Invalid URL")
+
+    def test_https_length_ignores_limit_due_to_logic(self):
+        long_host = "a" * 260
+        self.assertEqual(validate_url(f"https://{long_host}.com"), "Valid URL")
+
+
+class TestCalculateQuantityDiscount(unittest.TestCase):
+    def test_no_discount(self):
+        self.assertEqual(calculate_quantity_discount(1), "No Discount")
+        self.assertEqual(calculate_quantity_discount(5), "No Discount")
+
+    def test_five_percent(self):
+        self.assertEqual(calculate_quantity_discount(6), "5% Discount")
+        self.assertEqual(calculate_quantity_discount(10), "5% Discount")
+
+    def test_ten_percent(self):
+        self.assertEqual(calculate_quantity_discount(11), "10% Discount")
+
+
+class TestCheckFileSize(unittest.TestCase):
+    def test_valid_limits(self):
+        self.assertEqual(check_file_size(0), "Valid File Size")
+        self.assertEqual(check_file_size(1048576), "Valid File Size")
+
+    def test_invalid_limits(self):
+        self.assertEqual(check_file_size(-1), "Invalid File Size")
+        self.assertEqual(check_file_size(1048577), "Invalid File Size")
+
+
+class TestCheckLoanEligibility(unittest.TestCase):
+    def test_not_eligible_low_income(self):
+        self.assertEqual(check_loan_eligibility(25000, 800), "Not Eligible")
+
+    def test_mid_income_secured_or_standard(self):
+        self.assertEqual(check_loan_eligibility(40000, 650), "Secured Loan")
+        self.assertEqual(check_loan_eligibility(40000, 720), "Standard Loan")
+
+    def test_high_income(self):
+        self.assertEqual(check_loan_eligibility(80000, 760), "Premium Loan")
+        self.assertEqual(check_loan_eligibility(80000, 700), "Standard Loan")
+
+
+class TestCalculateShippingCost(unittest.TestCase):
+    def test_small_package(self):
+        self.assertEqual(calculate_shipping_cost(1, 10, 10, 10), 5)
+
+    def test_medium_package(self):
+        self.assertEqual(calculate_shipping_cost(5, 11, 11, 11), 10)
+        self.assertEqual(calculate_shipping_cost(2, 30, 30, 30), 10)
+
+    def test_otherwise_20(self):
+        self.assertEqual(calculate_shipping_cost(0.5, 15, 10, 10), 20)
+        self.assertEqual(calculate_shipping_cost(2, 10, 11, 11), 20)
+
+
+class TestGradeQuiz(unittest.TestCase):
+    def test_pass(self):
+        self.assertEqual(grade_quiz(7, 2), "Pass")
+        self.assertEqual(grade_quiz(10, 0), "Pass")
+
+    def test_conditional_pass(self):
+        self.assertEqual(grade_quiz(5, 3), "Conditional Pass")
+        self.assertEqual(grade_quiz(8, 3), "Conditional Pass")
+
+    def test_fail(self):
+        self.assertEqual(grade_quiz(6, 4), "Fail")
+        self.assertEqual(grade_quiz(4, 0), "Fail")
+
+
+class TestAuthenticateUser(unittest.TestCase):
+    def test_admin(self):
+        self.assertEqual(authenticate_user("admin", "admin123"), "Admin")
+
+    def test_user(self):
+        self.assertEqual(authenticate_user("userx", "password8"), "User")
+
+    def test_invalid(self):
+        self.assertEqual(authenticate_user("usr", "password8"), "Invalid")
+        self.assertEqual(authenticate_user("userx", "short"), "Invalid")
+
+
+class TestGetWeatherAdvisory(unittest.TestCase):
+    def test_heat_and_humidity(self):
+        self.assertEqual(
+            get_weather_advisory(31, 71),
+            "High Temperature and Humidity. Stay Hydrated.",
+        )
+
+    def test_cold(self):
+        self.assertEqual(
+            get_weather_advisory(-1, 50), "Low Temperature. Bundle Up!"
+        )
+
+    def test_neutral(self):
+        self.assertEqual(
+            get_weather_advisory(20, 50), "No Specific Advisory"
+        )
+
+
